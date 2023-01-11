@@ -102,9 +102,36 @@ macro_rules! define_Conf {
         $(#[conf_deprecated($dep:literal, $new_conf:ident)])?
         ($name:ident: $ty:ty = $default:expr),
     )*) => {
-        /// Clippy lint configuration
+        use std::sync::OnceLock;
+        pub static CONF_INSTANCE: OnceLock<Conf> = OnceLock::new();
+
+        /// Clippy lint configuration database.
+        #[derive(Debug, Clone)]
         pub struct Conf {
+            // TODO: make it private once migration completed
+            // to restrict access only from getter method
             $($(#[doc = $doc])+ pub $name: $ty,)*
+        }
+
+        // Here we implement public getter with access checker.
+        impl Conf {
+            pub fn instance() -> &'static Self {
+                CONF_INSTANCE.get().expect("CONF_INSTANCE is not initialized")
+            }
+
+            $($(#[doc = $doc])+ pub fn $name(&self) -> $ty {
+                // Assume that this $name method is called from `check_(stmt|expr|...)` method defined in lints.
+                // Here we might need to implement validation to restrict call these getters unless
+                // the caller lint registers config properly.
+                // To implement validation:
+                // - A: caller must pass its names to this `$name(lint names)` method and this method
+                //      checks if given lint names is declared in `define_Conf!` macro.
+                // - B: define macro to implement wrapper struct of `Conf` for each lint struct.
+                //      each lint should have defined configs it uses in `declare_clippy_lint`
+                //      macro or somewhere else, and each lint may access conf via its config wrapper.
+                // TODO: validation
+                self.$name.clone()
+            })*
         }
 
         mod defaults {

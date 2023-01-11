@@ -313,7 +313,7 @@ mod zero_sized_map_values;
 // end lints modules, do not remove this comment, it’s used in `update_lints`
 
 use crate::utils::conf::{format_error, TryConf};
-pub use crate::utils::conf::{lookup_conf_file, Conf};
+pub use crate::utils::conf::{lookup_conf_file, Conf, CONF_INSTANCE};
 
 /// Register all pre expansion lints
 ///
