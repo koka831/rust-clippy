@@ -315,7 +315,7 @@ mod zero_sized_map_values;
 // end lints modules, do not remove this comment, it’s used in `update_lints`
 
 use crate::utils::conf::{format_error, TryConf};
-pub use crate::utils::conf::{lookup_conf_file, Conf};
+pub use crate::utils::conf::{lookup_conf_file, Conf, CONF_INSTANCE};
 
 /// Register all pre expansion lints
 ///
@@ -750,13 +750,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
             literal_representation_threshold,
         ))
     });
-    let enum_variant_name_threshold = conf.enum_variant_name_threshold;
-    store.register_late_pass(move |_| {
-        Box::new(enum_variants::EnumVariantNames::new(
-            enum_variant_name_threshold,
-            avoid_breaking_exported_api,
-        ))
-    });
+    store.register_late_pass(move |_| Box::new(enum_variants::EnumVariantNames::new()));
     store.register_early_pass(|| Box::new(tabs_in_doc_comments::TabsInDocComments));
     let upper_case_acronyms_aggressive = conf.upper_case_acronyms_aggressive;
     store.register_late_pass(move |_| {

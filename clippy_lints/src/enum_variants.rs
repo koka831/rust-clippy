@@ -1,5 +1,6 @@
 //! lint on enum variants that are prefixed or suffixed by the same characters
 
+use crate::Conf;
 use clippy_utils::diagnostics::{span_lint, span_lint_and_help};
 use clippy_utils::source::is_present_in_source;
 use clippy_utils::str_utils::{camel_case_split, count_match_end, count_match_start};
@@ -112,11 +113,13 @@ pub struct EnumVariantNames {
 
 impl EnumVariantNames {
     #[must_use]
-    pub fn new(threshold: u64, avoid_breaking_exported_api: bool) -> Self {
+    pub fn new() -> Self {
+        dbg!(ENUM_VARIANT_NAMES_SUPPORTED_CONFIG());
+
         Self {
             modules: Vec::new(),
-            threshold,
-            avoid_breaking_exported_api,
+            threshold: Conf::instance().enum_variant_name_threshold(),
+            avoid_breaking_exported_api: Conf::instance().avoid_breaking_exported_api(),
         }
     }
 }
